@@ -1,0 +1,15 @@
+{
+  "name": "cart",
+  "version": "1.0.0",
+  "description": "cart service for deepthy's shop",
+  "main": "cart-app.js",
+  "dependencies": {
+    "morgan": "^1.8.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Deepthy Vazhelil",
+  "license": "ISC"
+}

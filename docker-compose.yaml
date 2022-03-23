@@ -1,0 +1,65 @@
+version : '3'
+services:
+  mysql:
+    image: mysql
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+
+    ports:
+      - "3306:3306"
+    expose:
+      - 3306 
+    volumes:
+      - "./mysql/database.sql:/docker-entrypoint-initdb.d/1.sql"
+      - "./mysql/data:/var/lib/mysql"
+
+  users:
+    depends_on:
+      - mysql
+    restart: always
+    image: users/latest
+    build:
+      context: ./users
+    expose:
+      - 3001
+    ports:
+      - 3001:3001
+
+  catalogue:
+    depends_on:
+      - mysql
+    restart: always
+    image: catalogue/latest
+    build:
+      context: ./catalogue
+    expose:
+      - 3002
+    ports:
+      - 3002:3002
+
+  cart:
+    depends_on:
+      - mysql
+    restart: always
+    image: cart/latest
+    build:
+      context: ./cart
+    expose:
+      - 3003
+    ports:
+      - 3003:3003
+
+  frontend:
+    depends_on:
+      - cart
+      - catalogue
+      - users
+    restart: always
+    image: frontend/latest
+    build:
+      context: ./front-end
+    expose:
+      - 3000
+    ports:
+      - 3000:3000

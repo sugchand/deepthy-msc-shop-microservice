@@ -1,0 +1,18 @@
+{
+  "name": "users-node-server",
+  "version": "1.0.0",
+  "description": "node server service for users",
+  "main": "users-app.js",
+  "dependencies": {
+    "express": "^4.13.3",
+    "flat-file-db": "^0.1.5",
+    "mysql": "^2.13.0",
+    "body-parser": "^1.14.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Deepthy Vazhelil",
+  "license": "ISC"
+}
