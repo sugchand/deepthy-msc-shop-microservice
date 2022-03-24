@@ -179,38 +179,38 @@ app.get("/getProducts", function (req, res, next) {
 
 app.get("/cart", function (req, res, next) {
     console.log("Request received: " + req.url );//+ ", " + req.query.custId);
-  //  var custId = helpers.getCustomerId(req, app.get("env"));
-    //console.log("Customer ID: " + custId);
-    request(endpoints.cartsUrl + "/cart",
+    console.log("read cart with " + req.session.customerId);
+    var options = {
+        uri: endpoints.cartsUrl + "/cart",
+        method: 'GET',
+        json: true,
+        body: {custId: req.session.customerId}
+    };
+
+    request(options,
         function (error, response, body) {
             if (error) {
-                return next(error);
+                console.log("Error with log in: " + error);
+                res.status(response.statusCode);
+                res.end();
+                return;
             }
             res.writeHeader(response.statusCode);
-            res.write(body);
+            res.write(JSON.stringify(body));
             res.end();
         });
 });
 
 // Delete item from cart
 app.post("/delete", function (req, res, next) {
-    //if (req.params.id == null) {
-    //    return next(new Error("Must pass id of item to delete"), 400);
-   // }
     console.log("Attempting to delete from cart: " + JSON.stringify(req.body));
     console.log("Delete item from cart: " + req.body.id);
-   // if (req.body.id == null) {
-  //      next(new Error("Must pass id of item to delete"), 400);
-  //      return;
-  //  }
 
-
-
-    //var custId = helpers.getCustomerId(req, app.get("env"));
-//console.log("custid "+custId);
     var options = {
         uri: endpoints.cartsUrl + "/cart" + "/items/" + req.body.id.toString(),
-        method: 'DELETE'
+        method: 'DELETE',
+        json: true,
+        body: {custId: req.session.customerId}
     };
     request(options, function (error, response, body) {
         if (error) {
@@ -249,12 +249,13 @@ app.post("/cart", function (req, res, next) {
         function (error, response, item) {
             console.log(item);
             console.log(" product id " + item.productID);
+            console.log("customer id " + req.session.customerId);
             var options1 = {
                 uri: endpoints.cartsUrl + "/add",
                 method: 'POST',
                 json: true,
                 body: {
-      //              custId: custId,
+                    custId: req.session.customerId,
                     productID: item.productID,
                     price: item.price,
                     quantity: qty,
@@ -267,8 +268,8 @@ app.post("/cart", function (req, res, next) {
                 + " body: " + JSON.stringify(options1.body));
             request(options1, function (error, response, body) {
                 if (error) {
-                    // callback(error)
-                    //return;
+                    console.log("error "+JSON.stringify(error));
+                    return;
                 }
                 res.writeHeader(response.statusCode);
                 res.write("");
