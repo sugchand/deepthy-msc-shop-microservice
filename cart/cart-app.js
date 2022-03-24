@@ -83,9 +83,10 @@ app.get("/cart", function (req, res, next) {
     }
 
     var cProductCart = productCart[obj.custId.toString()];
-    console.log(JSON.stringify(Object.values(cProductCart), null, 2));
-
-    res.send(JSON.stringify(Object.values(cProductCart), null, 2));
+    if (cProductCart != null) {
+        console.log(JSON.stringify(Object.values(cProductCart), null, 2));
+        res.send(JSON.stringify(Object.values(cProductCart), null, 2));
+    }
     console.log("cart sent");
 
 });

@@ -196,7 +196,9 @@ app.get("/cart", function (req, res, next) {
                 return;
             }
             res.writeHeader(response.statusCode);
-            res.write(JSON.stringify(body));
+            if (body != null) {
+                res.write(JSON.stringify(body));
+            }
             res.end();
         });
 });
