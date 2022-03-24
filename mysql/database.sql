@@ -21,12 +21,14 @@ CREATE TABLE Customer (
     name VARCHAR(40) NOT NULL,
     password VARCHAR(40) NOT NULL,
     address VARCHAR(60),
+    isadmin BOOLEAN NOT NULL DEFAULT 0,
     PRIMARY KEY  (customerID)
    
 );
-INSERT INTO Customer (name, password, address) VALUES
-         ('joe', 'joe', 'cork'),
-         ('mary', 'mary', 'dublin');
+INSERT INTO Customer (name, password, address, isadmin) VALUES
+         ('joe', 'joe', 'cork', false),
+         ('mary', 'mary', 'dublin', false),
+        ('admin', 'admin', 'cork', true);
 
 INSERT INTO Customer (name, password, address) VALUES
          ('joey', 'joey', 'london'),

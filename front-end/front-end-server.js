@@ -1,5 +1,5 @@
 const express = require("express") 
-//const session = require('express-session')
+const session = require('express-session')
 var request      = require("request")
 var bodyParser   = require("body-parser")
 var cookieParser = require("cookie-parser")
@@ -118,7 +118,7 @@ const app = express()
 
 endpoints={
 catalogueUrl:  "http://catalogue:3002",
-   newProductUrl:  "http://catalogue:3002",
+   newProductUrl:  "http://catalogue:3002/newProduct",
     tagsUrl:       "http://localhost:8082/catalogue/tags",
   //catalogueUrl:  "http://localhost:8081",
   // tagsUrl:       "http://localhost:8081",
@@ -129,11 +129,13 @@ catalogueUrl:  "http://catalogue:3002",
     cardsUrl:      "http://localhost:8080/cards",
     loginUrl:      "http://users:3001/login",
     registerUrl:   "http://users:3001/register",
+    getUserUrl:    "http://users:3001/user"
 };	
 // Port Number Setup 
 var PORT = process.env.port || 3000 
 app.use(express.static("public"));
 //app.use(session(session1));
+app.use(session({ secret: 'keyboard cat', cookie: { maxAge: 60000 }}))
 app.use(bodyParser.json());
 app.use(cookieParser());
 app.use(helpers.errorHandler);
@@ -300,16 +302,15 @@ app.post("/register", function(req, res, next) {
                 return;
             }
             console.log(body);
-           /* var customerId = body.id;
+            var customerId = body.id;
             console.log(customerId);
             req.session.customerId = customerId;
-            console.log("set cookie" + customerId);
+            console.log("set cookie " + customerId);
             res.status(200);
             res.cookie(cookie_name, req.session.id, {
                 maxAge: 3600000
-            }).send({id: customerId});
-            console.log("Sent cookies.");*/
-
+            }).send("logged in as "+ req.body.name);
+            console.log("Sent cookies.");
             res.end();
             return;
         }
@@ -321,12 +322,53 @@ app.post("/register", function(req, res, next) {
 
 app.post("/newProduct", function(req, res, next) {
 
+    if (req.session.customerId == null) {
+        // null == undefined as well.
+        res.status(401) // unauthorized without a user account
+        res.end()
+        return
+    }
 
-    console.log("Posting new Product: " + JSON.stringify(req.body));
+    function addNewProduct(){
+        // check for the valid user before adding the product.
+        var options = { 
+            uri: endpoints.newProductUrl,
+            method: 'POST',
+            json: true,
+            body: req.body
+        };
+        console.log("Customer ID: " + req.session.customerId);
+        console.log("Posting new Product: " + JSON.stringify(req.body));
+        request(options, function(error, response, body) {
+            if (error !== null ) {
+                console.log("error "+JSON.stringify(error));
+                return;
+            }
+            console.log('Item added with status: ' + response.statusCode);
+            res.writeHeader(response.statusCode);
+            res.end();
+        });
+    }
 
-
-
-
+    getUserOpts = { 
+        uri: endpoints.getUserUrl,
+        method: 'GET',
+        json: true,
+        body: req.session.customerId
+    };
+    request(getUserOpts, function(error, response, body) {
+        if (error !== null ) {
+            console.log("error "+JSON.stringify(error));
+            return;
+        }
+        if (response.body['isadmin'] != 1) {
+            // user is not admin, and cannot let adding new product
+            res.status(403)
+            res.end()
+            return
+        }
+        addNewProduct();
+    });
 });
 
 app.post("/login", function(req, res, next) {
@@ -354,17 +396,15 @@ app.post("/login", function(req, res, next) {
                 return;
             }
             console.log(body);
-
-            /*   var customerId = body.id;
+            var customerId = body.id;
             console.log('cust id ' +customerId);
             req.session.customerId = customerId;
             console.log("set cookie" + customerId);
             res.status(200);
             res.cookie(cookie_name, req.session.id, {
                 maxAge: 3600000
-            });//.send({id: customerId});
-            console.log("Sent cookies.");*/
-
+            }).send("logged in as "+ req.body.name);
+            console.log("Sent cookies.");
             res.end("logged in as "+ req.body.name);
             return;
         }

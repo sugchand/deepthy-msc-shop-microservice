@@ -66,6 +66,7 @@
         $(document).ready(function () {
 
         });
+
         function getCart() {
             hideAll();
             $("#products").hide();
@@ -97,6 +98,8 @@
             $("#login").hide();
             $("#register").hide();
             $("#newProduct").hide();
+            $("#products").hide();
+            $("#cart").hide();
         }
         function showLogin() {
             hideAll();
@@ -236,7 +239,6 @@
 
     <script>
 
-
         $(document).ready(function () {
             $('#logonForm').on( "submit",function(event) {
 
@@ -265,7 +267,7 @@
                     data: fd,
                     success: function (data) {
                         $('#logonmessage').html(data);
-                        alert("Thanks!"+data);
+                        alert("Thanks! "+data);
                     }
                 });
 
@@ -319,7 +321,7 @@
                     }
                 });
                 var fd =JSON.stringify(o);
-                console.log(fd);
+                console.log(fd)
                 $.ajax
                 ({
                     type: "POST",
@@ -329,15 +331,13 @@
                     success: function () {
 
                         alert("Thanks!");
-                    }
+                    },
+                    error: function(XMLHttpRequest, textStatus, errorThrown) { 
+                        alert("Error: " + errorThrown); 
+                    } 
                 });
 
             });
-
-
-
-
-
 
             getProducts();
             $("#login").hide();
@@ -414,11 +414,17 @@
             <p>
 
             <form id="newProductForm" action="">
-
                 Name:<br>
                 <input type="text" name="name" value="">
                 <br>
-
+                Price:<br>
+                <input type="number" name="price" value="10" step="0.01">
+                <br>
+                Quantity:<br>
+                <input type="number" name="quantity" value="1">
+                <br>
+                Image:<br>
+                <input type="file" name="image"><br>
                 <input type="submit">
             </form>
         </div>

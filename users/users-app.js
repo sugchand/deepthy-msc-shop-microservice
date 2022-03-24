@@ -128,8 +128,38 @@ var server = http.createServer(function (request, response) {
 
                 break;
         } //switch
-    }
-   
+    } 
+    else if (request.method == 'GET') {
+        switch (path) {
+        case "/user":
+            console.log("getUser");
+            var body="";
+            request.on('data', function (data) {
+                body += data;
+            });
+
+            request.on('end', function () {
+                var customID = JSON.parse(body);
+                response.writeHead(200, {
+                    'Content-Type': 'text/html',
+                    'Access-Control-Allow-Origin': '*'
+                });
+                console.log(JSON.stringify(customID, null, 2));
+                var query = "SELECT * FROM Customer where customerID='"+customID+"'";
+                db.query(
+                    query,
+                    [],
+                    function(err, rows) {
+                        if (err) throw err;
+                        console.log(JSON.stringify(rows, null, 2));
+                        response.end(JSON.stringify(rows[0]));
+                        console.log("Customer Data sent back"); 
+                    }
+                );
+            });
+            break;
+        }
+   }
 
 });
 server.listen(3001);

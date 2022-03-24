@@ -27,7 +27,64 @@ var server = http.createServer(function (request, response) {
         switch (path) {
             /* TODO */
             case "/newProduct":
+                var body = '';
+                console.log("New product");
+                request.on('data', function (data) {
+                    body += data;
+                });
 
+                request.on('end', function () {
+                    var obj = JSON.parse(body);
+                    console.log(JSON.stringify(obj, null, 2));
+                    var query = "SELECT * FROM products where name='"+obj.name+"'";
+                    response.writeHead(200, {
+                        'Access-Control-Allow-Origin': '*'
+                    });
+
+                    db.query(
+                        query,
+                        [],
+                        function(err, rows) {
+                            if (err) {
+                                response.end('{"error": "1"}');
+                                throw err;
+                            }
+                            if (rows!=null && rows.length>0) {
+                                console.log("product in database" );
+                                productID = rows[0].productID;
+                                var res = {
+                                    id: productID
+                                }
+                                response.end(JSON.stringify(res));
+
+                            }
+                            else{
+                                query = "INSERT INTO products (name, quantity, price, image)"+
+                                        "VALUES(?, ?, ?, ?)";
+                                db.query(
+                                    query,
+                                    [obj.name,obj.quantity,obj.price, "default.jpg"],
+                                    function(err, result) {
+                                        if (err) {
+                                            // 2 response is an sql error
+                                            response.end('{"error": "2"}');
+                                            throw err;
+                                        }
+                                        productID = result.insertId;
+                                        var obj = {
+                                            id: productID
+                                        }
+                                        response.end(JSON.stringify(obj));
+
+                                    }
+                                );
+                            }
+
+                        }
+                    );
+
+
+                });
 
                 break;
         } //switch
@@ -87,18 +144,9 @@ var server = http.createServer(function (request, response) {
                     );
 
                 });
-
-
-
                 break;
-
-
-
-
         }
     }
-
-
 
 });
 
