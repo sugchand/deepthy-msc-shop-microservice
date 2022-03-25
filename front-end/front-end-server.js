@@ -135,7 +135,8 @@ catalogueUrl:  "http://catalogue:3002",
 var PORT = process.env.port || 3000 
 app.use(express.static("public"));
 //app.use(session(session1));
-app.use(session({ secret: 'keyboard cat', cookie: { maxAge: 60000 }}))
+app.use(session({ secret: 'keyboard cat', resave : false,
+saveUninitialized : false, cookie: { maxAge: 3600000 }}))
 app.use(bodyParser.json());
 app.use(cookieParser());
 app.use(helpers.errorHandler);
@@ -153,6 +154,7 @@ app.get("/", function(req, res){
 app.get("/getProducts", function (req, res, next) {
    // var x = endpoints.catalogueUrl+"/getProducts" ;//+ req.url.toString();
     console.log("getProducts ");
+    console.log("get products with " + req.session.customerId);
     var options = {
         host: "catalogue",
         path: '/getProducts',
@@ -206,7 +208,7 @@ app.get("/cart", function (req, res, next) {
 // Delete item from cart
 app.post("/delete", function (req, res, next) {
     console.log("Attempting to delete from cart: " + JSON.stringify(req.body));
-    console.log("Delete item from cart: " + req.body.id);
+    console.log("Delete item from cart using user-id: " + req.session.customerId);
 
     var options = {
         uri: endpoints.cartsUrl + "/cart" + "/items/" + req.body.id.toString(),
